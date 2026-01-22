@@ -3,6 +3,9 @@
 An interactive touchscreen kiosk designed to guide museum visitors through exhibitions, artefacts, cultural content, and events.
 The system focuses on usability, accessibility, and intuitive interaction for public touchscreen environments.
 
+## Live Demo
+https://freddiesolo.github.io/interactive-museum-kiosk/
+
 ## Features
 - Interactive museum map with zoom and navigation
 - Artefact and gallery information displayed via pop-up overlays
