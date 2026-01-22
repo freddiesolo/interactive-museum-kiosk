@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Timeline – Naija Culture Guide</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --bg-main: #020617;
+        --frame-bg: #050816;
+        --panel-bg: rgba(11, 16, 32, 0.72);
+        --glass-stroke: rgba(255, 255, 255, 0.06);
+        --card-bg: rgba(2, 6, 23, 0.78);
+        --accent: #f97316;
+        --accent2: #0aa54b;
+        --text-main: #f9fafb;
+        --text-muted: #9ca3af;
+      }
+
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient(circle at top, #020617 0%, #000000 70%);
+        font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont,
+          sans-serif;
+        color: var(--text-main);
+      }
+
+      .frame {
+        width: 100%;
+        max-width: 1360px;
+        margin: 16px;
+        background: var(--frame-bg);
+        border-radius: 32px;
+        padding: 32px 40px 24px;
+        border: 2px solid #000;
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .title-block {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        max-width: 980px;
+      }
+
+      .title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+      }
+
+      .subtitle {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+      }
+
+      .icon-button {
+        width: 72px;
+        height: 72px;
+        border-radius: 999px;
+        border: none;
+        background: #f9fafb;
+        color: #020617;
+        font-size: 2.1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 0 0 3px #020617;
+        text-decoration: none;
+      }
+
+      .icon-button:active {
+        transform: scale(0.96);
+      }
+
+      .settings {
+        width: 60px;
+        height: 60px;
+        border-radius: 999px;
+        border: none;
+        background: #f9fafb;
+        color: #020617;
+        font-size: 1.8rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 0 3px #020617;
+        cursor: pointer;
+      }
+
+      .content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .pill-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 14px;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        background: rgba(17, 24, 39, 0.65);
+        color: var(--text-muted);
+        width: fit-content;
+        border: 1px solid rgba(255, 255, 255, 0.04);
+      }
+
+      .pill-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: var(--accent);
+      }
+
+      .timeline-panel {
+        background: var(--panel-bg);
+        border: 1px solid var(--glass-stroke);
+        border-radius: 24px;
+        padding: 22px 22px 18px;
+        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.75);
+        backdrop-filter: blur(10px);
+      }
+
+      .era-tabs {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 10px;
+        align-items: end;
+        margin: 8px 6px 12px;
+      }
+
+      .era-tab {
+        border: none;
+        background: transparent;
+        color: rgba(156, 163, 175, 0.95);
+        text-align: center;
+        cursor: pointer;
+        padding: 10px 10px 12px;
+        border-radius: 14px;
+        transition: transform 0.12s ease, background 0.12s ease,
+          color 0.12s ease;
+        position: relative;
+      }
+
+      .era-tab strong {
+        display: block;
+        font-size: 0.86rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        color: rgba(249, 250, 251, 0.85);
+      }
+
+      .era-tab span {
+        display: block;
+        margin-top: 4px;
+        font-size: 0.78rem;
+        color: rgba(156, 163, 175, 0.95);
+        line-height: 1.15;
+      }
+
+      .era-tab:active {
+        transform: scale(0.98);
+      }
+
+      .era-tab.active {
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--text-main);
+        box-shadow: inset 0 0 0 1px rgba(249, 115, 22, 0.22);
+      }
+
+      .era-tab.active strong {
+        color: #f9fafb;
+      }
+
+      .era-tab.active::after {
+        content: "";
+        position: absolute;
+        left: 16px;
+        right: 16px;
+        bottom: 6px;
+        height: 3px;
+        border-radius: 999px;
+        background: linear-gradient(
+          90deg,
+          rgba(249, 115, 22, 0.9),
+          rgba(10, 165, 75, 0.75)
+        );
+      }
+
+      .you-are-here {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.78rem;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(2, 6, 23, 0.55);
+        color: rgba(249, 250, 251, 0.85);
+        margin: 0 6px 14px;
+        width: fit-content;
+      }
+
+      .here-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: var(--accent);
+      }
+
+      .rail {
+        position: relative;
+        height: 12px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.6);
+        overflow: hidden;
+        margin: 0 6px 18px;
+      }
+
+      .rail-fill {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(
+          90deg,
+          rgba(249, 115, 22, 0.65),
+          rgba(10, 165, 75, 0.55)
+        );
+        transition: width 240ms ease;
+      }
+
+      .rail-marker {
+        position: absolute;
+        top: 50%;
+        left: 0%;
+        transform: translate(-50%, -50%);
+        width: 42px;
+        height: 18px;
+        border-radius: 999px;
+        background: rgba(249, 250, 251, 0.95);
+        box-shadow: 0 0 0 6px rgba(249, 115, 22, 0.18),
+          0 18px 30px rgba(0, 0, 0, 0.8);
+        transition: left 240ms ease;
+      }
+
+      .rail-marker::after {
+        content: "";
+        position: absolute;
+        inset: 4px 8px;
+        border-radius: 999px;
+        background: rgba(2, 6, 23, 0.85);
+      }
+
+      .info-box {
+        background: var(--card-bg);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 22px;
+        padding: 18px;
+        display: grid;
+        grid-template-columns: 380px minmax(0, 1fr);
+        gap: 16px;
+        box-shadow: 0 22px 60px rgba(0, 0, 0, 0.8);
+      }
+
+      .info-image {
+        border-radius: 18px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        height: 240px;
+        background: rgba(2, 6, 23, 0.55);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .info-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .info-text {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 0;
+      }
+
+      .info-title {
+        font-size: 1.08rem;
+        font-weight: 700;
+        line-height: 1.25;
+      }
+
+      .info-period {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+      }
+
+      .info-body {
+        margin-top: 6px;
+        font-size: 0.92rem;
+        opacity: 0.95;
+        line-height: 1.55;
+      }
+
+      .info-actions {
+        margin-top: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+      }
+
+      .hint {
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .learn-more {
+        height: 46px;
+        border-radius: 999px;
+        border: none;
+        padding: 0 18px;
+        background: rgba(10, 165, 75, 0.95);
+        color: #020617;
+        font-size: 0.9rem;
+        font-weight: 800;
+        cursor: pointer;
+        box-shadow: 0 12px 26px rgba(0, 0, 0, 0.8);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        min-width: 200px;
+      }
+
+      .learn-more:active {
+        transform: scale(0.97);
+      }
+
+      .back-home {
+        align-self: flex-end;
+        margin-top: 2px;
+        padding: 10px 18px;
+        border-radius: 999px;
+        background: rgba(11, 16, 32, 0.9);
+        color: var(--text-main);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
+        font-size: 0.9rem;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .footer {
+        margin-top: 4px;
+        display: flex;
+        justify-content: center;
+        gap: 22px;
+      }
+
+      .nav-pill {
+        min-width: 150px;
+        height: 54px;
+        border-radius: 999px;
+        border: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 22px rgba(0, 0, 0, 0.7);
+        background: rgba(17, 24, 39, 0.75);
+        color: var(--text-main);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .nav-pill.active {
+        background: #f9fafb;
+        color: #020617;
+      }
+
+      @media (max-width: 1050px) {
+        .era-tabs {
+          grid-template-columns: 1fr;
+        }
+
+        .info-box {
+          grid-template-columns: 1fr;
+        }
+
+        .info-image {
+          height: 210px;
+        }
+
+        .info-actions {
+          justify-content: flex-end;
+        }
+
+        .hint {
+          width: 100%;
+          justify-content: flex-start;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="frame">
+      <header class="header">
+        <div class="title-block">
+          <div class="title">Timeline</div>
+          <div class="subtitle">
+            <span class="pill-label"
+              ><span class="pill-dot"></span>Chronological view • Tap an era
+            </span>
+            This timeline is ordered from oldest to newest. Tap an era title to
+            update the information panel.
+          </div>
+        </div>
+        <a
+          href="accessibility.html"
+          class="icon-button"
+          aria-label="Accessibility & settings"
+        >
+          ⚙️
+        </a>
+      </header>
+
+      <main class="content">
+        <section class="timeline-panel" aria-label="Interactive timeline">
+          <div class="you-are-here" id="youAreHere">
+            <span class="here-dot"></span>
+            <span id="youAreHereText">You are here: Early Artistry</span>
+          </div>
+
+          <div class="era-tabs" id="eraTabs"></div>
+
+          <div class="rail" aria-hidden="true">
+            <div class="rail-fill" id="railFill"></div>
+            <div class="rail-marker" id="railMarker"></div>
+          </div>
+
+          <div class="info-box" role="region" aria-live="polite">
+            <div class="info-image">
+              <img
+                id="infoImg"
+                src="timeline-nok-ife.jpg"
+                alt="Timeline image"
+              />
+            </div>
+
+            <div class="info-text">
+              <div class="info-title" id="infoTitle">
+                Early Artistry – Nok &amp; Ife Traditions
+              </div>
+              <div class="info-period" id="infoPeriod">
+                c. 1000 BCE – 1500 CE
+              </div>
+              <div class="info-body" id="infoBody"></div>
+
+              <div class="info-actions">
+                <span class="hint"
+                  >💡 Tip: Tap another era title to compare how culture
+                  evolves.</span
+                >
+                <a class="learn-more" id="learnMoreBtn" href="main-gallery.html"
+                  >Learn more (artefacts)</a
+                >
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <a href="index.html" class="back-home">↩ Back to Home</a>
+      </main>
+
+      <nav class="footer">
+        <a href="map.html" class="nav-pill">Map</a>
+        <a href="culture.html" class="nav-pill">Culture</a>
+        <a href="timeline.html" class="nav-pill active">Timeline</a>
+        <a href="events-info.html" class="nav-pill">Events &amp; Info</a>
+        <a href="about.html" class="nav-pill">About Us</a>
+      </nav>
+    </div>
+
+    <script>
+      const eras = [
+        {
+          tabTitle: "EARLY ARTISTRY",
+          tabRange: "c. 1000 BCE – 1500 CE",
+          hereLabel: "Early Artistry",
+          title: "Early Artistry – Nok & Ife Traditions",
+          period: "c. 1000 BCE – 1500 CE",
+          body: "Terracotta figures from Nok, and later the refined bronze/brass heads from Ile-Ife, show that sophisticated artistry has deep roots in West Africa. These traditions influence royal and spiritual motifs you see in galleries today.",
+          image: "timeline-nok-ife.jpg",
+          learnMoreHref: "main-gallery.html",
+        },
+        {
+          tabTitle: "CULTURAL EXCHANGE",
+          tabRange: "8th – 19th century",
+          hereLabel: "Cultural Exchange",
+          title: "Trade Routes & Cultural Exchange",
+          period: "8th – 19th century",
+          body: "Trans-Saharan caravans and coastal routes linked regions through trade in gold, kola, textiles and ideas. Patterns, instruments, foods and beliefs blended with local traditions, shaping shared culture over centuries.",
+          image: "timeline-trade.jpg",
+          learnMoreHref: "outdoor-garden.html",
+        },
+        {
+          tabTitle: "BENIN KINGDOMS",
+          tabRange: "15th – 19th century",
+          hereLabel: "Benin Kingdoms",
+          title: "Benin Courts & Regional Kingdoms",
+          period: "15th – 19th century",
+          body: "Royal workshops produced plaques, heads and figures that recorded history, diplomacy and ceremony. Court art shaped visual memory and travelled through trade and political connections.",
+          image: "timeline-benin.jpg",
+          learnMoreHref: "main-gallery.html",
+        },
+        {
+          tabTitle: "COLONIAL ERA",
+          tabRange: "19th – mid-20th century",
+          hereLabel: "Colonial Era",
+          title: "Colonial Era – Resistance & Reframing",
+          period: "19th – mid-20th century",
+          body: "Foreign rule disrupted institutions, but also produced new forms of resistance and creativity. Communities adapted motifs and materials, preserving identity through storytelling, ceremony, art and everyday objects.",
+          image: "timeline-colonial.jpg",
+          learnMoreHref: "main-gallery.html",
+        },
+        {
+          tabTitle: "MODERN FUSION",
+          tabRange: "1960s – today",
+          hereLabel: "Modern Fusion",
+          title: "Modern Fusion & Diaspora",
+          period: "1960s – today",
+          body: "Post-independence culture blends heritage with global media, fashion and technology. Afrobeats, film, street food and Ankara prints travel worldwide while staying rooted in language, symbols and community life.",
+          image: "timeline-modern.jpg",
+          learnMoreHref: "main-gallery.html",
+        },
+      ];
+
+      const eraTabs = document.getElementById("eraTabs");
+      const railFill = document.getElementById("railFill");
+      const railMarker = document.getElementById("railMarker");
+
+      const youAreHereText = document.getElementById("youAreHereText");
+
+      const infoImg = document.getElementById("infoImg");
+      const infoTitle = document.getElementById("infoTitle");
+      const infoPeriod = document.getElementById("infoPeriod");
+      const infoBody = document.getElementById("infoBody");
+      const learnMoreBtn = document.getElementById("learnMoreBtn");
+
+      function percentForIndex(i) {
+        if (eras.length === 1) return 0;
+        return (i / (eras.length - 1)) * 100;
+      }
+
+      function setActive(i) {
+        document.querySelectorAll(".era-tab").forEach((btn, idx) => {
+          btn.classList.toggle("active", idx === i);
+        });
+
+        youAreHereText.textContent = `You are here: ${eras[i].hereLabel}`;
+
+        const pct = percentForIndex(i);
+        railFill.style.width = pct + "%";
+        railMarker.style.left = pct + "%";
+
+        const era = eras[i];
+        infoTitle.textContent = era.title;
+        infoPeriod.textContent = era.period;
+        infoBody.textContent = era.body;
+        infoImg.src = era.image;
+        infoImg.alt = era.title;
+
+        learnMoreBtn.href = era.learnMoreHref || "main-gallery.html";
+      }
+
+      eras.forEach((era, idx) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "era-tab";
+        btn.setAttribute("aria-label", `Show ${era.tabTitle}`);
+        btn.innerHTML = `<strong>${era.tabTitle}</strong><span>${era.tabRange}</span>`;
+        btn.addEventListener("click", () => setActive(idx));
+        eraTabs.appendChild(btn);
+      });
+
+      setActive(0);
+    </script>
+  </body>
+</html>

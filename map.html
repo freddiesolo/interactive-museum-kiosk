@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Museum Map – Naija Culture Guide</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --bg-main: #020617;
+        --frame-bg: #050816;
+        --panel-bg: #0b1020;
+        --map-ground: #020617;
+        --path-color: #1e293b;
+        --zone-gallery: #f97316;
+        --zone-outdoor: #facc15;
+        --zone-cafe: #22c8e5;
+        --text-main: #f9fafb;
+        --text-muted: #9ca3af;
+        --font-scale: 1;
+      }
+
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient(circle at top, #020617 0%, #000000 70%);
+        font-family:
+          "Poppins",
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+        color: var(--text-main);
+        font-size: calc(16px * var(--font-scale));
+      }
+
+      body.high-contrast {
+        background: #000 !important;
+        color: #fff !important;
+      }
+
+      body.high-contrast .frame {
+        background: #000 !important;
+        border: 2px solid #fff !important;
+        box-shadow: 0 30px 80px rgba(255, 255, 255, 0.06);
+      }
+
+      body.high-contrast .card {
+        background: #000 !important;
+        border: 2px solid #fff;
+      }
+
+      body.high-contrast .map {
+        border-color: #fff !important;
+      }
+
+      body.high-contrast .settings,
+      body.high-contrast .zoom-btn {
+        background: #fff !important;
+        color: #000 !important;
+        box-shadow: 0 0 0 3px #fff !important;
+      }
+
+      body.high-contrast .nav-pill,
+      body.high-contrast .back-home {
+        outline: 2px solid #fff;
+      }
+
+      body.high-contrast .subtitle,
+      body.high-contrast .label,
+      body.high-contrast .zoom-text,
+      body.high-contrast .hint {
+        color: #fff !important;
+        opacity: 0.9;
+      }
+
+      body.high-contrast .zoom-pill {
+        background: #000;
+        border: 2px solid #fff;
+      }
+
+      .frame {
+        width: 100%;
+        max-width: 1360px;
+        max-height: 800px;
+        margin: 16px;
+        background: var(--frame-bg);
+        border-radius: 32px;
+        padding: 32px 40px 24px;
+        border: 2px solid #000;
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .title-block {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .title {
+        font-size: 1.4rem;
+        font-weight: 600;
+      }
+
+      .subtitle {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+      }
+
+      .settings {
+        width: 60px;
+        height: 60px;
+        border-radius: 999px;
+        border: none;
+        background: #f9fafb;
+        color: #020617;
+        font-size: 1.8rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 0 3px #020617;
+        cursor: pointer;
+      }
+
+      .settings:active {
+        transform: scale(0.96);
+      }
+
+      .card {
+        border-radius: 26px;
+        background: var(--panel-bg);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .card-label {
+        font-weight: 600;
+        color: var(--text-main);
+        opacity: 0.95;
+      }
+
+      .map {
+        position: relative;
+        height: 600px;
+        margin-top: 10px;
+        border-radius: 22px;
+        background: var(--map-ground);
+        border: 1px solid #111827;
+        overflow: hidden;
+        touch-action: none;
+        user-select: none;
+        cursor: grab;
+      }
+
+      .map.dragging {
+        cursor: grabbing;
+      }
+
+      .map-viewport {
+        position: absolute;
+        inset: 0;
+        transform-origin: 0 0;
+        transition: transform 120ms ease;
+      }
+
+      .path-h,
+      .path-v {
+        position: absolute;
+        background: var(--path-color);
+        opacity: 0.9;
+        border-radius: 999px;
+      }
+
+      .path-h {
+        height: 10px;
+        left: 10%;
+        right: 10%;
+        top: 60%;
+      }
+
+      .path-v {
+        width: 10px;
+        top: 18%;
+        bottom: 25%;
+        left: 44%;
+      }
+
+      .label {
+        position: absolute;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+      }
+
+      .label-offices {
+        top: 10%;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      .label-carpark {
+        bottom: 10%;
+        left: 8%;
+      }
+      .label-restrooms {
+        bottom: 10%;
+        right: 8%;
+      }
+
+      .icon-box {
+        position: absolute;
+        width: 26px;
+        height: 26px;
+        border-radius: 6px;
+        background: #020617;
+        color: #f9fafb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+      }
+
+      body.high-contrast .icon-box {
+        background: #000;
+        border: 2px solid #fff;
+      }
+
+      .icon-box.p1 {
+        bottom: 18%;
+        left: 22%;
+      }
+      .icon-box.wc1 {
+        bottom: 20%;
+        right: 30%;
+      }
+      .icon-box.wc2 {
+        top: 30%;
+        right: 22%;
+      }
+
+      .zone {
+        position: absolute;
+        border-radius: 14px;
+        text-decoration: none;
+        color: #111827;
+        font-size: 0.95rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 8px;
+        box-shadow: 0 14px 28px rgba(0, 0, 0, 0.7);
+        border: 3px solid transparent;
+        cursor: pointer;
+        user-select: none;
+        z-index: 5;
+      }
+
+      .zone-main {
+        background: var(--zone-gallery);
+        width: 300px;
+        height: 200px;
+        left: 33%;
+        top: 10%;
+      }
+
+      .zone-outdoor {
+        background: var(--zone-outdoor);
+        width: 320px;
+        height: 250px;
+        right: 10%;
+        top: 40%;
+      }
+
+      .zone-cafe {
+        background: var(--zone-cafe);
+        width: 230px;
+        height: 120px;
+        left: 5%;
+        top: 50%;
+      }
+
+      .zone:active {
+        transform: scale(0.97);
+        border-color: #fbbf24;
+      }
+
+      .zoom {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        z-index: 6;
+      }
+
+      .zoom-btn {
+        width: 60px;
+        height: 60px;
+        border-radius: 999px;
+        border: none;
+        background: #f9fafb;
+        color: #020617;
+        font-size: 1.8rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 0 3px #020617;
+        cursor: pointer;
+      }
+
+      .zoom-btn:active {
+        transform: scale(0.96);
+      }
+
+      .zoom-text {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+      }
+
+      .zoom-pill {
+        margin-top: 4px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: rgba(2, 6, 23, 0.55);
+        border: 1px solid rgba(249, 250, 251, 0.12);
+        color: var(--text-main);
+        font-size: 0.78rem;
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.55);
+      }
+
+      .hint {
+        position: absolute;
+        left: 14px;
+        bottom: 14px;
+        z-index: 6;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(2, 6, 23, 0.55);
+        border: 1px solid rgba(249, 250, 251, 0.12);
+        color: var(--text-muted);
+        font-size: 0.78rem;
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45);
+      }
+
+      .back-home {
+        align-self: flex-end;
+        margin-top: 6px;
+        padding: 10px 18px;
+        border-radius: 999px;
+        background: #0b1020;
+        color: var(--text-main);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
+        font-size: 0.9rem;
+      }
+
+      .back-home:active {
+        transform: scale(0.97);
+      }
+
+      .footer {
+        display: flex;
+        justify-content: center;
+        gap: 22px;
+      }
+
+      .nav-pill {
+        min-width: 150px;
+        height: 54px;
+        border-radius: 999px;
+        border: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 22px rgba(0, 0, 0, 0.7);
+        background: #111827;
+        color: var(--text-main);
+      }
+
+      .nav-pill.active {
+        background: #f9fafb;
+        color: #020617;
+      }
+
+      .nav-pill:active {
+        transform: scale(0.97);
+      }
+    </style>
+  </head>
+
+  <body>
+    <script>
+      (function () {
+        const STORAGE_KEY = "kioskAccessibility";
+        let saved = {};
+        try {
+          saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+        } catch {
+          saved = {};
+        }
+
+        const scale = typeof saved.scale === "number" ? saved.scale : 1;
+        const contrast = !!saved.contrast;
+
+        document.documentElement.style.setProperty(
+          "--font-scale",
+          String(scale),
+        );
+        if (contrast) document.body.classList.add("high-contrast");
+      })();
+    </script>
+
+    <div class="frame">
+      <header class="header">
+        <div class="title-block">
+          <div class="title">Museum Map</div>
+          <div class="subtitle">Tap a zone to explore the space.</div>
+        </div>
+        <button
+          class="settings"
+          aria-label="Settings & accessibility"
+          id="btn-settings"
+          type="button"
+        >
+          ⚙️
+        </button>
+      </header>
+
+      <div class="card">
+        <div class="card-label">Site layout</div>
+
+        <div class="map" id="mapRoot" aria-label="Interactive museum map">
+          <div class="map-viewport" id="mapViewport">
+            <div class="path-h"></div>
+            <div class="path-v"></div>
+
+            <div class="label label-offices">Offices</div>
+            <div class="label label-carpark">Car Park</div>
+            <div class="label label-restrooms">Restrooms</div>
+
+            <div class="icon-box p1">P</div>
+            <div class="icon-box wc1">WC</div>
+            <div class="icon-box wc2">WC</div>
+
+            <a href="main-gallery.html" class="zone zone-main">Main Gallery</a>
+            <a href="outdoor-garden.html" class="zone zone-outdoor"
+              >Outdoor Garden</a
+            >
+            <a href="cafe-giftshop.html" class="zone zone-cafe"
+              >Café &amp; Gift Shop</a
+            >
+          </div>
+
+          <div class="zoom" id="zoomUi" aria-label="Zoom controls">
+            <button
+              class="zoom-btn"
+              id="zoomIn"
+              type="button"
+              aria-label="Zoom in"
+            >
+              +
+            </button>
+            <button
+              class="zoom-btn"
+              id="zoomOut"
+              type="button"
+              aria-label="Zoom out"
+            >
+              −
+            </button>
+            <div class="zoom-text">Zoom</div>
+            <div class="zoom-pill" id="zoomReadout" aria-live="polite">
+              100%
+            </div>
+          </div>
+
+          <div class="hint" id="hintText">Drag to move • Use + / − to zoom</div>
+        </div>
+      </div>
+
+      <a href="index.html" class="back-home">↩ Back to Home</a>
+
+      <nav class="footer">
+        <a href="map.html" class="nav-pill active">Map</a>
+        <a href="culture.html" class="nav-pill">Culture</a>
+        <a href="timeline.html" class="nav-pill">Timeline</a>
+        <a href="events-info.html" class="nav-pill">Events &amp; Info</a>
+        <a href="about.html" class="nav-pill">About Us</a>
+      </nav>
+    </div>
+
+    <script>
+      document
+        .getElementById("btn-settings")
+        .addEventListener(
+          "click",
+          () => (window.location.href = "accessibility.html"),
+        );
+
+      const mapRoot = document.getElementById("mapRoot");
+      const viewport = document.getElementById("mapViewport");
+      const readout = document.getElementById("zoomReadout");
+      const zoomInBtn = document.getElementById("zoomIn");
+      const zoomOutBtn = document.getElementById("zoomOut");
+      const zoomUi = document.getElementById("zoomUi");
+      const zoneLinks = mapRoot.querySelectorAll("a.zone");
+
+      const MIN_ZOOM = 0.8;
+      const MAX_ZOOM = 1.8;
+      const STEP = 0.1;
+
+      let zoom = 1;
+      let panX = 0;
+      let panY = 0;
+
+      function clamp(n, min, max) {
+        return Math.max(min, Math.min(max, n));
+      }
+
+      function getBoundsForCurrentZoom() {
+        const w = mapRoot.clientWidth;
+        const h = mapRoot.clientHeight;
+
+        const contentW = w * zoom;
+        const contentH = h * zoom;
+
+        const minX = Math.min(0, w - contentW);
+        const maxX = 0;
+
+        const minY = Math.min(0, h - contentH);
+        const maxY = 0;
+
+        return { minX, maxX, minY, maxY };
+      }
+
+      function clampPan() {
+        const { minX, maxX, minY, maxY } = getBoundsForCurrentZoom();
+        panX = clamp(panX, minX, maxX);
+        panY = clamp(panY, minY, maxY);
+      }
+
+      function applyTransform() {
+        clampPan();
+        viewport.style.transform = `translate(${panX}px, ${panY}px) scale(${zoom})`;
+        readout.textContent = `${Math.round(zoom * 100)}%`;
+
+        zoomInBtn.disabled = zoom >= MAX_ZOOM - 0.0001;
+        zoomOutBtn.disabled = zoom <= MIN_ZOOM + 0.0001;
+        zoomInBtn.style.opacity = zoomInBtn.disabled ? "0.55" : "1";
+        zoomOutBtn.style.opacity = zoomOutBtn.disabled ? "0.55" : "1";
+      }
+
+      function zoomAtPoint(nextZoom, clientX, clientY) {
+        const rect = mapRoot.getBoundingClientRect();
+        const px = clientX - rect.left;
+        const py = clientY - rect.top;
+
+        const beforeX = (px - panX) / zoom;
+        const beforeY = (py - panY) / zoom;
+
+        zoom = clamp(nextZoom, MIN_ZOOM, MAX_ZOOM);
+
+        panX = px - beforeX * zoom;
+        panY = py - beforeY * zoom;
+
+        applyTransform();
+      }
+
+      function zoomToCenter(nextZoom) {
+        const rect = mapRoot.getBoundingClientRect();
+        zoomAtPoint(
+          nextZoom,
+          rect.left + rect.width / 2,
+          rect.top + rect.height / 2,
+        );
+      }
+
+      zoomInBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        zoomToCenter(zoom + STEP);
+      });
+
+      zoomOutBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        zoomToCenter(zoom - STEP);
+      });
+
+      zoomUi.addEventListener("pointerdown", (e) => e.stopPropagation());
+      zoomUi.addEventListener("click", (e) => e.stopPropagation());
+
+      zoneLinks.forEach((a) => {
+        a.addEventListener("pointerdown", (e) => e.stopPropagation());
+        a.addEventListener("click", (e) => e.stopPropagation());
+      });
+
+      let dragging = false;
+      let startX = 0;
+      let startY = 0;
+      let startPanX = 0;
+      let startPanY = 0;
+
+      mapRoot.addEventListener("pointerdown", (e) => {
+        if (e.button !== undefined && e.button !== 0) return;
+        if (e.target.closest(".zoom")) return;
+        if (e.target.closest("a.zone")) return;
+
+        dragging = true;
+        mapRoot.classList.add("dragging");
+        mapRoot.setPointerCapture(e.pointerId);
+
+        startX = e.clientX;
+        startY = e.clientY;
+        startPanX = panX;
+        startPanY = panY;
+      });
+
+      mapRoot.addEventListener("pointermove", (e) => {
+        if (!dragging) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+
+        panX = startPanX + dx;
+        panY = startPanY + dy;
+
+        applyTransform();
+      });
+
+      mapRoot.addEventListener("pointerup", (e) => {
+        dragging = false;
+        mapRoot.classList.remove("dragging");
+        try {
+          mapRoot.releasePointerCapture(e.pointerId);
+        } catch {}
+      });
+
+      mapRoot.addEventListener("pointercancel", () => {
+        dragging = false;
+        mapRoot.classList.remove("dragging");
+      });
+
+      mapRoot.addEventListener(
+        "wheel",
+        (e) => {
+          if (e.target.closest(".zoom")) return;
+          e.preventDefault();
+          const direction = e.deltaY > 0 ? -1 : 1;
+          zoomAtPoint(zoom + direction * STEP, e.clientX, e.clientY);
+        },
+        { passive: false },
+      );
+
+      let lastTouchDist = null;
+
+      mapRoot.addEventListener(
+        "touchmove",
+        (e) => {
+          if (e.target.closest(".zoom") || e.target.closest("a.zone")) return;
+
+          if (e.touches.length !== 2) {
+            lastTouchDist = null;
+            return;
+          }
+          e.preventDefault();
+
+          const t1 = e.touches[0];
+          const t2 = e.touches[1];
+
+          const dx = t2.clientX - t1.clientX;
+          const dy = t2.clientY - t1.clientY;
+          const dist = Math.hypot(dx, dy);
+
+          const cx = (t1.clientX + t2.clientX) / 2;
+          const cy = (t1.clientY + t2.clientY) / 2;
+
+          if (lastTouchDist == null) {
+            lastTouchDist = dist;
+            return;
+          }
+
+          const delta = dist - lastTouchDist;
+          lastTouchDist = dist;
+
+          const next = zoom + (delta > 0 ? STEP : -STEP) * 0.6;
+          zoomAtPoint(next, cx, cy);
+        },
+        { passive: false },
+      );
+
+      window.addEventListener("resize", () => applyTransform());
+
+      applyTransform();
+    </script>
+  </body>
+</html>
